@@ -10,7 +10,16 @@ def tg(method, **data):
     if not j.get("ok"): raise RuntimeError(str(j))
     return j["result"]
 def cmd(args,timeout=900):
-    return subprocess.check_output(args,text=True,stderr=subprocess.PIPE,timeout=timeout)
+    try:
+        return subprocess.check_output(
+            args, text=True, stderr=subprocess.PIPE, timeout=timeout
+        )
+    except subprocess.CalledProcessError as e:
+        detail = (e.stderr or e.output or "").strip()
+        raise RuntimeError(
+            f"Command failed (exit {e.returncode}): "
+            f"{' '.join(args[:3])}\\n{detail[-3000:]}"
+        ) from e
 def safe(s): return re.sub(r"[^A-Za-z0-9._-]+","_",s)[:60] or "video"
 def load(path,default):
     try: return json.loads(path.read_text(encoding="utf-8"))
