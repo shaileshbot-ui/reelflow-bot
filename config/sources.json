@@ -1,3 +1,10 @@
 {
-  "sources": []
+  "sources": [
+    {
+      "id": "insta-1",
+      "type": "instagram",
+      "url": "https://www.instagram.com/kriti_giri_14/",
+      "enabled": true
+    }
+  ]
 }
