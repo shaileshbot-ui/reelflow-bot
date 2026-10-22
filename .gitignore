@@ -1,0 +1,6 @@
+.env
+*.cookies
+cookies.txt
+__pycache__/
+*.pyc
+outputs/

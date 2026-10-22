@@ -1,0 +1,36 @@
+name: Daily Reels to Telegram
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: reelflow-daily
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PUSH_TOKEN || github.token }}
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Download, process and send one new video per source
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python app/runner.py
+      - name: Save sent history
+        run: |
+          git config user.name "reelflow-bot"
+          git config user.email "actions-bot@users.noreply.github.com"
+          git add state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update sent video history"
+            git push
+          fi
