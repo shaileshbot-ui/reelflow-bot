@@ -25,15 +25,42 @@ def load(path,default):
     try: return json.loads(path.read_text(encoding="utf-8"))
     except Exception: return default
 def entries(source):
-    out=cmd(["yt-dlp","--flat-playlist","--no-warnings","--ignore-errors","--print","%(id)s\\t%(webpage_url)s\\t%(title)s",source["url"]],180)
-    result=[]
+    out = cmd([
+        "yt-dlp", "--flat-playlist", "--no-warnings",
+        "--ignore-errors", "--print",
+        "%(id)s|%(webpage_url)s|%(title)s",
+        source["url"]
+    ], 180)
+
+    result = []
     for line in out.splitlines():
-        p=line.split("\t",2)
-        if len(p)>=2 and p[0].strip():
-            result.append({"key":p[0].strip(),"url":p[1].strip(),"title":p[2].strip() if len(p)>2 else p[0].strip()})
-    if not result and source.get("type")=="youtube":
-        result=[{"key":source["url"],"url":source["url"],"title":"YouTube video"}]
+        parts = line.split("|", 2)
+        if len(parts) < 2 or not parts[0].strip():
+            continue
+
+        video_id = parts[0].strip()
+        video_url = parts[1].strip()
+        title = parts[2].strip() if len(parts) > 2 else video_id
+
+        if not video_url:
+            video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+        result.append({
+            "key": video_id,
+            "url": video_url,
+            "title": title or video_id
+        })
+
+    if not result and source.get("type") == "youtube":
+        if "list=" not in source["url"]:
+            result = [{
+                "key": source["url"],
+                "url": source["url"],
+                "title": "YouTube video"
+            }]
+
     return result
+
 def make_video(entry,sid):
     tmp=pathlib.Path(tempfile.mkdtemp(prefix="reelflow_"))
     try:
@@ -45,12 +72,24 @@ def make_video(entry,sid):
         cmd(["ffmpeg","-y","-i",str(candidates[0]),"-vf",vf,"-c:v","libx264","-preset","veryfast","-crf","23","-c:a","aac","-b:a","128k","-movflags","+faststart","-t","180",str(out)],900)
         return out
     finally: shutil.rmtree(tmp,ignore_errors=True)
-def send(path,title,url):
-    caption=f"{title}\n\n#Reels #Shorts #Video\nSource: {url}"
-    with open(path,"rb") as f:
-        r=requests.post(f"https://api.telegram.org/bot{TOKEN}/sendVideo",data={"chat_id":CHAT,"caption":caption[:1024],"supports_streaming":"true"},files={"video":(path.name,f,"video/mp4")},timeout=300)
-    r.raise_for_status()
-    if not r.json().get("ok"): raise RuntimeError(str(r.json()))
+def send(path, title, url):
+    title = (title or "New video").strip()
+    caption = f"{title}\\n\\n#Reels #Shorts #Video\\nSource: {url}"
+    with open(path, "rb") as f:
+        r = requests.post(
+            f"https://api.telegram.org/bot{TOKEN}/sendVideo",
+            data={
+                "chat_id": CHAT,
+                "caption": caption[:1024],
+                "supports_streaming": "true",
+            },
+            files={"video": (path.name, f, "video/mp4")},
+            timeout=300,
+        )
+    result = r.json()
+    if not r.ok or not result.get("ok"):
+        raise RuntimeError(f"Telegram sendVideo failed: {result}")
+
 def main():
     cfg=load(CONFIG,{"sources":[]}); state=load(STATE,{"sources":{}}); state.setdefault("sources",{})
     sources=[s for s in cfg.get("sources",[]) if s.get("enabled",True) and s.get("id") and s.get("url")]
