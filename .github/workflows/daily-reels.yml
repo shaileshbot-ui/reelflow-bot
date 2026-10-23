@@ -52,7 +52,7 @@ jobs:
         run: |
           yt-dlp --version
           "$HOME/.deno/bin/deno" --version
-          yt-dlp --cookies "$YOUTUBE_COOKIES_FILE" --skip-download --print "%(title)s" "https://www.youtube.com/watch?v=2qm2KLsd92Q"
+          yt-dlp --remote-components ejs:github --cookies "$YOUTUBE_COOKIES_FILE" --skip-download --print "%(title)s" "https://www.youtube.com/watch?v=2qm2KLsd92Q"
 
       - name: Download, process and send at most one new video
         env:
