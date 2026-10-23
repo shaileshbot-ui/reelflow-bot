@@ -10,6 +10,10 @@ def tg(method, **data):
     if not j.get("ok"): raise RuntimeError(str(j))
     return j["result"]
 def cmd(args,timeout=900):
+    if args and pathlib.Path(args[0]).name == "yt-dlp":
+        cookie_file = os.environ.get("YOUTUBE_COOKIES_FILE")
+        if cookie_file and pathlib.Path(cookie_file).is_file():
+            args = [args[0], "--cookies", cookie_file, *args[1:]]
     try:
         return subprocess.check_output(
             args, text=True, stderr=subprocess.PIPE, timeout=timeout

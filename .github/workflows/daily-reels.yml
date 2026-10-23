@@ -35,17 +35,37 @@ jobs:
           "$HOME/.deno/bin/deno" --version
           yt-dlp --version
 
+      - name: Prepare YouTube cookies
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
+        run: |
+          if [ -z "$YOUTUBE_COOKIES" ]; then
+            echo "Missing YOUTUBE_COOKIES repository secret."
+            exit 1
+          fi
+          COOKIE_FILE="$RUNNER_TEMP/youtube-cookies.txt"
+          umask 077
+          printf '%s' "$YOUTUBE_COOKIES" > "$COOKIE_FILE"
+          echo "YOUTUBE_COOKIES_FILE=$COOKIE_FILE" >> "$GITHUB_ENV"
+
       - name: Diagnose YouTube downloader
         run: |
           yt-dlp --version
           "$HOME/.deno/bin/deno" --version
-          yt-dlp --list-formats "https://www.youtube.com/watch?v=2qm2KLsd92Q" || true
+          yt-dlp --cookies "$YOUTUBE_COOKIES_FILE" --skip-download --print "%(title)s" "https://www.youtube.com/watch?v=2qm2KLsd92Q"
 
       - name: Download, process and send at most one new video
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python app/runner.py
+
+      - name: Remove temporary YouTube cookies
+        if: always()
+        run: |
+          if [ -n "${YOUTUBE_COOKIES_FILE:-}" ]; then
+            rm -f "$YOUTUBE_COOKIES_FILE"
+          fi
 
       - name: Save sent history
         run: |
