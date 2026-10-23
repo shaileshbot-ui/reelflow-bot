@@ -3,13 +3,7 @@
     {
       "id": "youtube-1",
       "type": "youtube",
-      "url": "https://youtube.com/playlist?list=PLJFFNcx4BRNM&si=NFwt-keZ_Ws8jaAs",
-      "enabled": true
-    },
-    {
-      "id": "youtube-2",
-      "type": "youtube",
-      "url": "https://youtube.com/playlist?list=PLaeEcLDPJ0UU&si=6a9Yg0PQA-nb4TKi",
+      "url": "https://youtube.com/playlist?list=PLaeEcLDPJ0UU&si=pqkcIlhVLcJFeMm9",
       "enabled": true
     }
   ]
