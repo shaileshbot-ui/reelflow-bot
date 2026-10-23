@@ -78,7 +78,7 @@ def make_video(entry,sid):
     finally: shutil.rmtree(tmp,ignore_errors=True)
 def send(path, title, url):
     title = (title or "New video").strip()
-    caption = f"{title}\\n\\n#Reels #Shorts #Video\\nSource: {url}"
+    caption = f"{title}\n\n#nonfollowers #fbreels #fbviral\nSource: {url}"
     with open(path, "rb") as f:
         r = requests.post(
             f"https://api.telegram.org/bot{TOKEN}/sendVideo",
@@ -109,6 +109,7 @@ def main():
                 print("No new item:",sid); continue
             path=make_video(fresh,sid); send(path,fresh.get("title") or sid,fresh["url"])
             hist["sent"].append(fresh["key"]); hist["sent"]=hist["sent"][-5000:]; sent+=1
+            break
         except Exception as e:
             print("Source error",sid,repr(e))
             try: tg("sendMessage",chat_id=CHAT,text=f"Source {sid} se video nahi bhej paya.\n{str(e)[:500]}")
