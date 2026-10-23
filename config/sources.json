@@ -1,9 +1,15 @@
 {
   "sources": [
     {
-      "id": "insta-1",
-      "type": "instagram",
-      "url": "https://www.instagram.com/kriti_giri_14/",
+      "id": "youtube-1",
+      "type": "youtube",
+      "url": "https://youtube.com/playlist?list=PLJFFNcx4BRNM&si=NFwt-keZ_Ws8jaAs",
+      "enabled": true
+    },
+    {
+      "id": "youtube-2",
+      "type": "youtube",
+      "url": "https://youtube.com/playlist?list=PLaeEcLDPJ0UU&si=6a9Yg0PQA-nb4TKi",
       "enabled": true
     }
   ]
