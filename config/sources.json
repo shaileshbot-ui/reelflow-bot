@@ -1,3 +1,10 @@
 {
-  "sources": []
+  "sources": [
+    {
+      "id": "youtube-1",
+      "type": "youtube",
+      "url": "https://youtube.com/playlist?list=PLaeEcLDPJ0UU&si=pqkcIlhVLcJFeMm9",
+      "enabled": true
+    }
+  ]
 }
