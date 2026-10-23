@@ -35,6 +35,12 @@ jobs:
           "$HOME/.deno/bin/deno" --version
           yt-dlp --version
 
+      - name: Diagnose YouTube downloader
+        run: |
+          yt-dlp --version
+          "$HOME/.deno/bin/deno" --version
+          yt-dlp --list-formats "https://www.youtube.com/watch?v=2qm2KLsd92Q" || true
+
       - name: Download, process and send at most one new video
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
