@@ -28,10 +28,11 @@ jobs:
           sudo apt-get install -y ffmpeg
           curl -fsSL https://deno.land/install.sh | sh
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.deno/bin:$PATH"
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python -m pip install --upgrade yt-dlp
-          deno --version
+          "$HOME/.deno/bin/deno" --version
           yt-dlp --version
 
       - name: Download, process and send at most one new video
